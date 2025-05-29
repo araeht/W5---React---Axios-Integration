@@ -1,19 +1,52 @@
 import { useEffect, useState } from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 
 export default function ArticleList() {
   const [articles, setArticles] = useState([]);
   // Fetch all articles when component mounts
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const API_BASE_URL = 'http://localhost:3000/api';
   useEffect(() => {
     fetchArticles();
   }, []);
 
+  
+
   const fetchArticles = async () => {
     // Fetch articles from the API
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/articles`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch articles');
+      }
+      const data = await response.json();
+      setArticles(data);
+      setLoading(false);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
   };
 
   const deleteArticle = async (id) => {
     // Delete an article by ID
+    try {
+      const response = await fetch(`${API_BASE_URL}/articles/${id}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete article');
+      }
+      
+      // Update state to remove the deleted article
+      setArticles(articles.filter(article => article.id !== id));
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (

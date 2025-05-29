@@ -8,8 +8,31 @@ export default function ArticlePage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Function to fetch article by ID
-  }, []);
+    async function fetchArticle() {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/articles/${id}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch article: ${response.status}`);
+        }
+        const data = await response.json();
+        setArticle(data);
+        setError('');
+      } catch (err) {
+        setError(err.message || 'Failed to load article');
+        console.error('Error fetching article:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (id) {
+      fetchArticle();
+    } else {
+      setError('No article ID provided');
+      setLoading(false);
+    }
+  }, [id]);
 
   if (loading) return <div>Loading article...</div>;
   if (error) return <div>Error: {error}</div>;

@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useParams, useNavigate } from 'react-router-dom';
 
 export default function UpdateArticleForm() {
   const [form, setForm] = useState({
@@ -7,12 +9,25 @@ export default function UpdateArticleForm() {
     journalistId: '',
     categoryId: '',
   });
-
+  const { id } = useParams();
+  const navigate = useNavigate();
 
   // Fetch to prefill a form and update an existing article
   useEffect(() => {
-
-  }, []);
+    // Fetch the article by ID and prefill the form
+    axios.get(`/api/articles/${id}`)
+      .then(res => {
+        setForm({
+          title: res.data.title || '',
+          content: res.data.content || '',
+          journalistId: res.data.journalistId || '',
+          categoryId: res.data.categoryId || '',
+        });
+      })
+      .catch(err => {
+        // Handle error (optional)
+      });
+  }, [id]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -21,6 +36,12 @@ export default function UpdateArticleForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Update article with axios
+    try {
+      await axios.put(`/api/articles/${id}`, form);
+      navigate('/'); // Redirect after update
+    } catch (err) {
+      // Handle error (optional)
+    }
   };
 
   return (

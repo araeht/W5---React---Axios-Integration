@@ -16,6 +16,32 @@ export default function ArticleForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Validate form data
+    try {
+      const response = await fetch('http://localhost:3000/articles', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(form),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create article');
+      }
+      
+      // Reset form after successful submission
+      setForm({
+        title: '',
+        content: '',
+        journalistId: '',
+        categoryId: '',
+      });
+      
+      alert('Article created successfully!');
+    } catch (error) {
+      console.error('Error creating article:', error);
+      alert('Failed to create article. Please try again.');
+    }
   };
 
   return (
