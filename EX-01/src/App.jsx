@@ -14,7 +14,7 @@ function App() {
       <Routes>
         <Route path="/" element={<ArticleList />} />
         <Route path="/add" element={<CreateArticleForm />} />
-        <Route path="/update/:id" element={<UpdateArticleForm />} />
+        <Route path="/articles/update/:id" element={<UpdateArticleForm />} />
         <Route path="/articles/:id" element={<ArticleViewer />} />
       </Routes>
     </div>

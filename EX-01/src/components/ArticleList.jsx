@@ -1,51 +1,34 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export default function ArticleList() {
   const [articles, setArticles] = useState([]);
-  // Fetch all articles when component mounts
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const navigate = useNavigate();
-  const API_BASE_URL = 'http://localhost:3000/api';
+  // Fetch all articles when component mounts
   useEffect(() => {
     fetchArticles();
   }, []);
 
-  
-
   const fetchArticles = async () => {
     // Fetch articles from the API
-    try {
-      setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/articles`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch articles');
-      }
-      const data = await response.json();
-      setArticles(data);
-      setLoading(false);
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
+    try{
+      const response = await axios.get('http://localhost:3000/articles');
+      setArticles(response.data);
+    }
+    catch(error){
+      console.error('Error fetching articles: ', error);
     }
   };
 
   const deleteArticle = async (id) => {
     // Delete an article by ID
-    try {
-      const response = await fetch(`${API_BASE_URL}/articles/${id}`, {
-        method: 'DELETE',
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to delete article');
-      }
-      
-      // Update state to remove the deleted article
-      setArticles(articles.filter(article => article.id !== id));
-    } catch (err) {
-      setError(err.message);
+    try{
+      await axios.delete(`http://localhost:3000/articles/${id}`);
+      fetchArticles(); // refresh list after deletion
+    }
+    catch(error){
+      console.error('Error deleting article: ', error);
     }
   };
 
@@ -66,9 +49,11 @@ export default function ArticleList() {
             <button onClick={() => deleteArticle(article.id)}>Delete</button>
             <button onClick={() => {
               // Navigate to update article form with article ID /articles/update/${article.id}
+              navigate(`/articles/update/${article.id}`)
             }}>Update</button>
             <button onClick={() => {
               // Navigate to view article details with article ID /articles/${article.id}
+              navigate(`/articles/${article.id}`)
             }}>View</button>
           </li>
         ))}

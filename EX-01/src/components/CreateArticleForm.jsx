@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import axios from 'axios'
 
 export default function ArticleForm() {
   const [form, setForm] = useState({
@@ -9,6 +10,8 @@ export default function ArticleForm() {
     categoryId: '',
   });
 
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -16,31 +19,14 @@ export default function ArticleForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Validate form data
-    try {
-      const response = await fetch('http://localhost:3000/articles', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(form),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to create article');
-      }
-      
-      // Reset form after successful submission
-      setForm({
-        title: '',
-        content: '',
-        journalistId: '',
-        categoryId: '',
-      });
-      
-      alert('Article created successfully!');
-    } catch (error) {
-      console.error('Error creating article:', error);
-      alert('Failed to create article. Please try again.');
+    try{
+      await axios.post('http://localhost:3000/articles', form);
+      alert('Article added successfully');
+      navigate('/'); // go back to article list
+    }
+    catch (error){
+      console.error('Error adding article: ', error);
+      alert('Failed to addd article');
     }
   };
 

@@ -1,32 +1,32 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export default function UpdateArticleForm() {
+  const { id } = useParams(); // get article id from url
+  const navigate = useNavigate(); 
+
   const [form, setForm] = useState({
     title: '',
     content: '',
     journalistId: '',
     categoryId: '',
   });
-  const { id } = useParams();
-  const navigate = useNavigate();
+
 
   // Fetch to prefill a form and update an existing article
   useEffect(() => {
-    // Fetch the article by ID and prefill the form
-    axios.get(`/api/articles/${id}`)
-      .then(res => {
-        setForm({
-          title: res.data.title || '',
-          content: res.data.content || '',
-          journalistId: res.data.journalistId || '',
-          categoryId: res.data.categoryId || '',
-        });
-      })
-      .catch(err => {
-        // Handle error (optional)
-      });
+    const fetchArticle = async () => {
+      try{
+        const response = await axios.get(`http://localhost:3000/articles/${id}`);
+        setForm(response.data);
+      }
+      catch (error){
+        console.error('Error fetching article: ', error);
+        alert('Failed to load article for updating')
+      }
+    };
+    fetchArticle();
   }, [id]);
 
   const handleChange = (e) => {
@@ -36,11 +36,14 @@ export default function UpdateArticleForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Update article with axios
-    try {
-      await axios.put(`/api/articles/${id}`, form);
-      navigate('/'); // Redirect after update
-    } catch (err) {
-      // Handle error (optional)
+    try{
+      await axios.put(`http://localhost:3000/articles/${id}`, form);
+      alert('Article updated successfully');
+      navigate('/'); // go back to article list
+    }
+    catch (error){
+      console.error('Error updating article: ', error);
+      alert('Failed to update article');
     }
   };
 
